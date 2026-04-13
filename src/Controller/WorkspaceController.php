@@ -18,8 +18,15 @@ class WorkspaceController extends AbstractController
     {
         $workspace = new Workspace();
 
-        $form = $this->createForm(WorkspaceType::class, $workspace);
+        $user = $this->getUser();
 
+        if (!$user) {
+            throw new \LogicException('User must be logged in to create a workspace.');
+        }
+
+        $workspace->setUser($user);
+
+        $form = $this->createForm(WorkspaceType::class, $workspace);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

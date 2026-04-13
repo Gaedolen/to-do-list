@@ -72,4 +72,15 @@ class Workspace
     {
         return $this->columns;
     }
+
+    public function getUser(): ?Utilisateur
+    {
+        return $this->user;
+    }
+
+    public function setUser(?Utilisateur $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
 }
