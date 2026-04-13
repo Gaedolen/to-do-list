@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>Créer un workspace</h1>
+
+{{ form_start(form) }}
+
+    {{ form_row(form.title) }}
+
+    <h3>Colonnes</h3>
+
+    <div id="columns"
+         data-prototype="{{ form_widget(form.columns.vars.prototype)|e('html_attr') }}">
+
+        {% for column in form.columns %}
+            <div class="column-item">
+                {{ form_widget(column) }}
+            </div>
+        {% endfor %}
+
+    </div>
+
+    <button type="button" id="add-column">
+        + Ajouter une colonne
+    </button>
+
+    <br><br>
+
+    <button type="submit">
+        Créer
+    </button>
+
+{{ form_end(form) }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const container = document.getElementById('columns');
+    const addBtn = document.getElementById('add-column');
+
+    let index = container.querySelectorAll('input').length;
+
+    addBtn.addEventListener('click', function () {
+
+        let prototype = container.dataset.prototype;
+
+        let newForm = prototype.replace(/__name__/g, index);
+
+        let div = document.createElement('div');
+        div.classList.add('column-item');
+        div.innerHTML = newForm;
+
+        container.appendChild(div);
+
+        index++;
+    });
+
+});
+</script>
+
+{% endblock %}
