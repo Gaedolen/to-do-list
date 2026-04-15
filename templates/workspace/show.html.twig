@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/workspace/show.css') }}">
+{% endblock %}
+
+{% block body %}
+
+<div class="workspace-container">
+
+    <aside class="workspace-aside">
+        
+        <!-- Titre -->
+        <h2 class="workspace-title">
+            {{ workspace.title }}
+        </h2>
+
+        <!-- Stats tâches -->
+        <div class="task-stats">
+            <p><strong>À faire :</strong> 5</p>
+            <p><strong>En cours :</strong> 3</p>
+            <p><strong>Terminées :</strong> 8</p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="workspace-nav">
+            <a href="{{ path('workspace_index') }}">+ Workspaces</a>
+            <a href="#">+ Tâches</a>
+            <a href="#">+ Paramètres</a>
+        </nav>
+
+    </aside>
+
+    <div class="workspace-content">
+        <div class="columns-container">
+
+            {% for column in workspace.columns %}
+                <div class="column" data-column="{{ column.id }}">
+
+                    <!-- Titre colonne -->
+                    <h3 class="column-title">{{ column.title }}</h3>
+
+                    <!-- Cartes -->
+                    <div class="tasks">
+                        {% for task in column.tasks %}
+                            <div class="task-card">
+                                {{ task.title }}
+                            </div>
+                        {% else %}
+                            <p class="no-task">Aucune tâche</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Bouton -->
+                    <button 
+                        class="add-task-btn" 
+                        data-column-id="{{ column.id }}"
+                    >
+                        + Ajouter une tâche
+                    </button>
+
+                </div>
+            {% else %}
+                <p>Aucune colonne pour ce workspace</p>
+            {% endfor %}
+
+            <!-- Ajouter colonne -->
+            <div class="add-column-container">
+                <button class="add-column-btn">+ Ajouter une colonne</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{# Modal d'ajout d'une tâche #}
+<div id="taskModal" class="custom-modal">
+    <div class="modal-content">
+
+        <h3>Nouvelle tâche</h3>
+
+        {{ form_start(taskForm, { attr: { id: 'taskForm' } }) }}
+
+            {{ form_row(taskForm.title) }}
+            {{ form_row(taskForm.description) }}
+            {{ form_row(taskForm.isImportant) }}
+
+            <input type="hidden" id="columnId" name="columnId">
+
+            <button type="submit">Créer</button>
+
+        {{ form_end(taskForm) }}
+
+    </div>
+</div>
+
+{% block javascripts %}
+    <script src="{{ asset('js/task.js') }}"></script>
+{% endblock %}
+
+{% endblock %}

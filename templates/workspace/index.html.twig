@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Workspaces{% endblock %}
+
+{% block body %}
+    <h1>Mes Workspaces</h1>
+
+    <a href="{{ path('workspace_create') }}">+ Créer un workspace</a>
+
+    <ul>
+        {% for workspace in workspaces %}
+            <li>
+                <a href="{{ path('workspace_show', {id: workspace.id}) }}">
+                    {{ workspace.title }}
+                </a>
+            </li>
+        {% else %}
+            <li>Aucun workspace pour le moment</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

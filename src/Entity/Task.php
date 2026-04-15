@@ -21,7 +21,7 @@ class Task
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?bool $isImportant = null;
+    private bool $isImportant = false;
 
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
@@ -56,14 +56,25 @@ class Task
         return $this;
     }
 
-    public function isPriority(): ?bool
+    public function isImportant(): bool
     {
         return $this->isImportant;
     }
 
-    public function setPriority(bool $isImportant): static
+    public function setIsImportant(bool $isImportant): static
     {
         $this->isImportant = $isImportant;
+        return $this;
+    }
+
+    public function getColumn(): ?Column
+    {
+        return $this->column;
+    }
+
+    public function setColumn(?Column $column): static
+    {
+        $this->column = $column;
 
         return $this;
     }
