@@ -4,7 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('taskForm');
     const columnInput = document.getElementById('columnId');
 
-    // OUVERTURE MODAL (event delegation)
+    let isSubmitting = false;
+
+    // =========================
+    // OUVERTURE MODAL
+    // =========================
     document.addEventListener('click', (e) => {
 
         const btn = e.target.closest('.add-task-btn');
@@ -12,65 +16,96 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const columnId = btn.dataset.columnId;
 
-        console.log('Open modal for column:', columnId);
+        columnInput.value = columnId;
 
         modal.classList.add('active');
-        columnInput.value = columnId;
     });
 
-    // FERMETURE MODAL (clic sur fond noir)
+    // =========================
+    // FERMETURE MODAL
+    // =========================
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.classList.remove('active');
         }
     });
 
+    // =========================
     // SUBMIT AJAX
+    // =========================
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        e.stopPropagation(); // 🔥 important
 
-        const columnId = columnInput.value;
+        if (form.dataset.locked === "1") return;
+        form.dataset.locked = "1";
 
-        const response = await fetch(`/task/create/${columnId}`, {
-            method: 'POST',
-            body: new FormData(form)
-        });
+        try {
+            const columnId = columnInput.value;
 
-        const data = await response.json();
+            const response = await fetch(`/task/create/${columnId}`, {
+                method: 'POST',
+                body: new FormData(form)
+            });
 
-        if (!response.ok) {
-            console.error('Erreur backend:', data);
-            return;
+            const data = await response.json();
+
+            if (!response.ok) return;
+
+            const column = document.querySelector(`[data-column="${columnId}"] .tasks`);
+
+            const card = document.createElement('div');
+            card.classList.add('task-card');
+
+            card.innerHTML = data.important
+                ? "⭐ " + data.title
+                : data.title;
+
+            column.appendChild(card);
+
+            form.reset();
+            modal.classList.remove('active');
+
+        } finally {
+            form.dataset.locked = "0";
         }
-
-        // 👉 On cible la colonne proprement
-        const column = document.querySelector(`[data-column="${columnId}"]`);
-
-        if (!column) {
-            console.error('Colonne introuvable:', columnId);
-            return;
-        }
-
-        const tasksContainer = column.querySelector('.tasks');
-
-        if (!tasksContainer) {
-            console.error('Container .tasks introuvable dans colonne:', columnId);
-            return;
-        }
-
-        // Création carte
-        const card = document.createElement('div');
-        card.classList.add('task-card');
-
-        card.textContent = data.important
-            ? "⭐ " + data.title
-            : data.title;
-
-        tasksContainer.appendChild(card);
-
-        // reset + fermeture modal
-        form.reset();
-        modal.classList.remove('active');
     });
 
+    // Menu burger pour le aside
+    const burgerBtn = document.getElementById('burgerBtn');
+    const aside = document.querySelector('.workspace-aside');
+
+    if (burgerBtn && aside) {
+        burgerBtn.addEventListener('click', () => {
+            aside.classList.toggle('open');
+        });
+
+        // bonus : fermer si clic extérieur
+        document.addEventListener('click', (e) => {
+            const isClickInsideAside = aside.contains(e.target);
+            const isClickBurger = burgerBtn.contains(e.target);
+
+            if (!isClickInsideAside && !isClickBurger) {
+                aside.classList.remove('open');
+            }
+        });
+    }
+
+    // Ouverture / fermeture des colonnes
+    document.addEventListener('click', (e) => {
+
+        const header = e.target.closest('.column-header');
+        if (!header) return;
+
+        const column = header.closest('.column');
+
+        document.querySelectorAll('.column').forEach(col => {
+            if (col !== column) {
+                col.classList.add('closed');
+            }
+        });
+
+        column.classList.toggle('closed');
+
+    });
 });

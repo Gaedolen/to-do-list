@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block body %}
+<div class="mobile-header">
+    <div class="burger-container">
+        <button id="burgerBtn" class="burger-btn">☰</button>
+    </div>
+
+    <h1 class="mobile-title">{{ workspace.title }}</h1>
+</div>
 
 <div class="workspace-container">
 
@@ -18,9 +25,14 @@
 
         <!-- Stats tâches -->
         <div class="task-stats">
-            <p><strong>À faire :</strong> 5</p>
-            <p><strong>En cours :</strong> 3</p>
-            <p><strong>Terminées :</strong> 8</p>
+
+            {% for column in workspace.columns %}
+                <p>
+                    <strong>{{ column.title }} :</strong>
+                    {{ column.tasks|length }}
+                </p>
+            {% endfor %}
+
         </div>
 
         <!-- Navigation -->
@@ -39,13 +51,22 @@
                 <div class="column" data-column="{{ column.id }}">
 
                     <!-- Titre colonne -->
-                    <h3 class="column-title">{{ column.title }}</h3>
+                    <div class="column-header">
+                        <h3 class="column-title">{{ column.title }}</h3>
+                        <span class="toggle-icon">▼</span>
+                    </div>
 
                     <!-- Cartes -->
                     <div class="tasks">
                         {% for task in column.tasks %}
                             <div class="task-card">
+
+                                {% if task.isImportant %}
+                                    <span class="star">⭐</span>
+                                {% endif %}
+
                                 {{ task.title }}
+
                             </div>
                         {% else %}
                             <p class="no-task">Aucune tâche</p>
@@ -79,17 +100,30 @@
 <div id="taskModal" class="custom-modal">
     <div class="modal-content">
 
-        <h3>Nouvelle tâche</h3>
+        <h3>Créer une nouvelle tâche</h3>
 
         {{ form_start(taskForm, { attr: { id: 'taskForm' } }) }}
 
-            {{ form_row(taskForm.title) }}
-            {{ form_row(taskForm.description) }}
-            {{ form_row(taskForm.isImportant) }}
+            <div class="form-group">
+                {{ form_label(taskForm.title, "Titre de la tâche") }}
+                {{ form_widget(taskForm.title) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(taskForm.description, "Description (optionnelle)") }}
+                {{ form_widget(taskForm.description) }}
+            </div>
+
+            <div class="form-group checkbox-group">
+                {{ form_widget(taskForm.isImportant) }}
+                {{ form_label(taskForm.isImportant, "Tâche importante ⭐") }}
+            </div>
 
             <input type="hidden" id="columnId" name="columnId">
 
-            <button type="submit">Créer</button>
+            <button type="submit" class="modal-submit-btn">
+                Créer la tâche
+            </button>
 
         {{ form_end(taskForm) }}
 
